@@ -1,5 +1,7 @@
 package com.zheng.upms.server.controller.manage;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baidu.unbiz.fluentvalidator.ComplexResult;
 import com.baidu.unbiz.fluentvalidator.FluentValidator;
 import com.baidu.unbiz.fluentvalidator.ResultCollectors;
@@ -24,10 +26,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 用户controller
@@ -149,6 +148,42 @@ public class UpmsUserController extends BaseController {
         return new UpmsResult(UpmsResultConstant.SUCCESS, "");
     }
 
+    @ApiOperation(value = "用户权限")
+    @RequiresPermissions("upms:user:permission")
+    @RequestMapping(value = "/permission/{id}", method = RequestMethod.GET)
+    public String permission(@PathVariable("id") int id, ModelMap modelMap) {
+        UpmsUser user = upmsUserService.selectByPrimaryKey(id);
+        modelMap.put("user", user);
+        return "/manage/user/permission.jsp";
+    }
+
+    @ApiOperation(value = "用户权限")
+    @RequiresPermissions("upms:user:permission")
+    @RequestMapping(value = "/permission/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public Object permission(@PathVariable("id") int id, HttpServletRequest request) {
+        JSONArray datas = JSONArray.parseArray(request.getParameter("datas"));
+        for (int i = 0; i < datas.size(); i ++) {
+            JSONObject json = datas.getJSONObject(i);
+            if (json.getBoolean("checked")) {
+                // 新增权限
+                UpmsUserPermission upmsUserPermission = new UpmsUserPermission();
+                upmsUserPermission.setUserId(id);
+                upmsUserPermission.setPermissionId(json.getIntValue("id"));
+                upmsUserPermission.setType(json.getByte("type"));
+                upmsUserPermissionService.insertSelective(upmsUserPermission);
+            } else {
+                // 删除权限
+                UpmsUserPermissionExample upmsUserPermissionExample = new UpmsUserPermissionExample();
+                upmsUserPermissionExample.createCriteria()
+                        .andPermissionIdEqualTo(json.getIntValue("id"))
+                        .andTypeEqualTo(json.getByte("type"));
+                upmsUserPermissionService.deleteByExample(upmsUserPermissionExample);
+            }
+        }
+        return new UpmsResult(UpmsResultConstant.SUCCESS, datas.size());
+    }
+
     @ApiOperation(value = "用户列表")
     @RequiresPermissions("upms:user:read")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -156,6 +191,7 @@ public class UpmsUserController extends BaseController {
     public Object list(
             @RequestParam(required = false, defaultValue = "0", value = "offset") int offset,
             @RequestParam(required = false, defaultValue = "10", value = "limit") int limit,
+            @RequestParam(required = false, defaultValue = "", value = "search") String search,
             @RequestParam(required = false, value = "sort") String sort,
             @RequestParam(required = false, value = "order") String order) {
         UpmsUserExample upmsUserExample = new UpmsUserExample();
@@ -163,6 +199,12 @@ public class UpmsUserController extends BaseController {
         upmsUserExample.setLimit(limit);
         if (!StringUtils.isBlank(sort) && !StringUtils.isBlank(order)) {
             upmsUserExample.setOrderByClause(sort + " " + order);
+        }
+        if (StringUtils.isNotBlank(search)) {
+            upmsUserExample.or()
+                    .andRealnameLike("%" + search + "%");
+            upmsUserExample.or()
+                    .andUsernameLike("%" + search + "%");
         }
         List<UpmsUser> rows = upmsUserService.selectByExample(upmsUserExample);
         long total = upmsUserService.countByExample(upmsUserExample);
@@ -199,6 +241,8 @@ public class UpmsUserController extends BaseController {
         upmsUser.setPassword(MD5Util.MD5(upmsUser.getPassword() + upmsUser.getSalt()));
         upmsUser.setCtime(time);
         int count = upmsUserService.insertSelective(upmsUser);
+        upmsUser = upmsUserService.insert2(upmsUser);
+        _log.info("新增用户，主键：userId={}", upmsUser.getUserId());
         return new UpmsResult(UpmsResultConstant.SUCCESS, count);
     }
 

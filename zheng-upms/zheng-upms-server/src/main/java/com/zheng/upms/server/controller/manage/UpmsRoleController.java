@@ -77,18 +77,21 @@ public class UpmsRoleController extends BaseController {
             if (!json.getBoolean("checked")) {
                 deleteIds.add(json.getIntValue("id"));
             } else {
-                // 加权限
+                // 新增权限
                 UpmsRolePermission upmsRolePermission = new UpmsRolePermission();
                 upmsRolePermission.setRoleId(id);
                 upmsRolePermission.setPermissionId(json.getIntValue("id"));
                 upmsRolePermissionService.insertSelective(upmsRolePermission);
             }
         }
-        // 减权限
-        UpmsRolePermissionExample upmsRolePermissionExample = new UpmsRolePermissionExample();
-        upmsRolePermissionExample.createCriteria()
-            .andPermissionIdIn(deleteIds);
-        upmsRolePermissionService.deleteByExample(upmsRolePermissionExample);
+        // 删除权限
+        if (deleteIds.size() > 0) {
+            UpmsRolePermissionExample upmsRolePermissionExample = new UpmsRolePermissionExample();
+            upmsRolePermissionExample.createCriteria()
+                    .andPermissionIdIn(deleteIds)
+                    .andRoleIdEqualTo(id);
+            upmsRolePermissionService.deleteByExample(upmsRolePermissionExample);
+        }
         return new UpmsResult(UpmsResultConstant.SUCCESS, datas.size());
     }
 
@@ -99,6 +102,7 @@ public class UpmsRoleController extends BaseController {
     public Object list(
             @RequestParam(required = false, defaultValue = "0", value = "offset") int offset,
             @RequestParam(required = false, defaultValue = "10", value = "limit") int limit,
+            @RequestParam(required = false, defaultValue = "", value = "search") String search,
             @RequestParam(required = false, value = "sort") String sort,
             @RequestParam(required = false, value = "order") String order) {
         UpmsRoleExample upmsRoleExample = new UpmsRoleExample();
@@ -106,6 +110,10 @@ public class UpmsRoleController extends BaseController {
         upmsRoleExample.setLimit(limit);
         if (!StringUtils.isBlank(sort) && !StringUtils.isBlank(order)) {
             upmsRoleExample.setOrderByClause(sort + " " + order);
+        }
+        if (StringUtils.isNotBlank(search)) {
+            upmsRoleExample.or()
+                    .andTitleLike("%" + search + "%");
         }
         List<UpmsRole> rows = upmsRoleService.selectByExample(upmsRoleExample);
         long total = upmsRoleService.countByExample(upmsRoleExample);
