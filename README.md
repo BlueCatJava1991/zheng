@@ -4,7 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/shuzheng/zheng.svg?style=social&label=Stars)](https://github.com/shuzheng/zheng)
 [![GitHub forks](https://img.shields.io/github/forks/shuzheng/zheng.svg?style=social&label=Fork)](https://github.com/shuzheng/zheng)
 
-交流QQ群：133107819🈵、284280411🈵、305155242🈵、528049386🈵、157869467🈵、570766789♨️(群内含各种工具和文档下载)
+交流QQ群：133107819(群内含各种工具和文档下载)
 
 ## 前言
 
@@ -59,6 +59,7 @@ jQuery | 函式库  | [http://jquery.com/](http://jquery.com/)
 Bootstrap | 前端框架  | [http://getbootstrap.com/](http://getbootstrap.com/)
 Bootstrap-table | Bootstrap数据表格  | [http://bootstrap-table.wenzhixin.net.cn/](http://bootstrap-table.wenzhixin.net.cn/)
 Font-awesome | 字体图标  | [http://fontawesome.io/](http://fontawesome.io/)
+material-design-iconic-font | 字体图标  | [https://github.com/zavoloklom/material-design-iconic-font](https://github.com/zavoloklom/material-design-iconic-font)
 Waves | 点击效果插件  | [https://github.com/fians/Waves](https://github.com/fians/Waves)
 zTree | 树插件  | [http://www.treejs.cn/v3/](http://www.treejs.cn/v3/)
 Select2 | 选择框插件  | [https://github.com/select2/select2](https://github.com/select2/select2)
@@ -106,6 +107,8 @@ Spring+SpringMVC+Mybatis框架集成公共模块，包括公共配置、MybatisG
 - **七牛云**
 - 本地分布式存储
 
+![阿里云OSS](project-bootstrap/aliyun-oss-post-callback.png)
+
 > zheng-api
 
 接口总线系统，对外暴露统一规范的接口，包括各个子系统的交互接口、对外开放接口、开发加密接口、接口文档等服务，示例图：
@@ -122,6 +125,8 @@ Spring+SpringMVC+Mybatis框架集成公共模块，包括公共配置、MybatisG
 - 一站式支付解决方案，统一下单接口，支持支付宝、微信、网银等多种支付方式。不涉及业务的纯粹的支付平台。
 
 - 统一下单（统一下单接口、统一扫码）、订单管理、数据分析、财务报表、商户管理、渠道管理、对账系统、系统监控。
+
+![统一扫码支付](project-bootstrap/zheng-pay.png)
 
 > zheng-ucenter
 
